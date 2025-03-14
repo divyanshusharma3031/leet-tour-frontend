@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fixing Empty Body Issue in Fetch POST Request
 
-## Getting Started
+## **Issue Description**
+When making a `POST` request using JavaScript's `fetch` API, the request body was unexpectedly received as an empty object `{}` by the server.
 
-First, run the development server:
+### **Incorrect Code**
+```javascript
+const body = {
+    "password": "abcdeffgij",
+    "userName": "testUser3"
+};
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+const res = await fetch("http://localhost:5000/api/users/login", {
+    body: JSON.stringify(body),
+    method: "POST"
+});
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### **Why This Happens?**
+1. **Missing `Content-Type` Header**
+   - Without specifying `"Content-Type": "application/json"`, the server does not know how to parse the request body.
+   - Some servers may treat it as `application/x-www-form-urlencoded` or even ignore it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **How the Server Interprets It**
+   - The browser sends the `body`, but without `Content-Type`, the server may:
+     - Ignore it completely
+     - Parse it incorrectly
+     - Assume an empty object `{}`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## **Solution**
+### **Fix: Add Headers**
+To ensure the server recognizes the request body as JSON, add the `Content-Type` header:
 
-## Learn More
+```javascript
+const body = {
+    "password": "abcdeffgij",
+    "userName": "testUser3"
+};
 
-To learn more about Next.js, take a look at the following resources:
+const res = await fetch("http://localhost:5000/api/users/login", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+});
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### **Why This Works?**
+- The `Content-Type: application/json` header explicitly tells the server that the request body is in JSON format.
+- The server can now properly parse `userName` and `password` from the request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## **Debugging Tips**
+If the issue persists:
+1. **Check DevTools (Network Tab)**
+   - Verify that `Content-Type: application/json` is included in the **Request Headers**.
+   - Ensure the **Request Payload** contains the correct JSON.
 
-## Deploy on Vercel
+2. **Log the Body Before Sending**
+   ```javascript
+   console.log(JSON.stringify(body));
+   ```
+   This ensures that `body` is correctly converted to a JSON string.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **Check Server Logs**
+   If using **Express.js**, ensure you have:
+   ```javascript
+   app.use(express.json());
+   ```
+   This allows Express to correctly parse JSON requests.
