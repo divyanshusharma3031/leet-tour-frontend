@@ -27,8 +27,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar/>
-        {children}
+        <div className="container min-h-screen pt-5 bg-cover bg-center bg-no-repeat bg-[url('/bg-3.jpg')]">
+          <Navbar />
+          {children}
+        </div>
       </body>
     </html>
   );

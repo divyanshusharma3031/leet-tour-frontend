@@ -3,14 +3,11 @@ import React from "react";
 
 function Navbar() {
   return (
-    <div
-      className="container min-h-screen pt-5 bg-cover bg-center bg-no-repeat bg-[url('/bg-3.jpg')]"
-      
-    >
+    <>
       {/* <div className="absolute inset-0 bg-black/10 backdrop-blur-md"></div> */}
-      <div className="relative z-10 container w-[1170px] m-auto">
+      <div className="relative container w-[1170px] m-auto">
         <div className="flex justify-between">
-          <h1 className="text-2xl font-bold text-[#fff]">leetForces</h1>
+          <h1 className="text-2xl font-bold text-[#fff]">LeetForces</h1>
           <div className="flex font-light text-[16px] m-[8px]">
             <div className="">
               <Link href="/login">
@@ -29,7 +26,7 @@ function Navbar() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
