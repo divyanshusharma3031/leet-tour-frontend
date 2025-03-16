@@ -1,18 +1,14 @@
 'use server'
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation'
 interface loginState {
-    message: string,
-    error: boolean
+    message: string
 }
-export async function loginUser(prevState: any, formData: FormData) {
+export async function loginUser(prevState: loginState, formData: FormData) {
     try {
         const userName = formData.get("username");
         const password = formData.get("password");
-    
-        console.log("UserName:", userName);
-        console.log("Password:", password);
-    
         if (!userName || !password) {
             return { message: "Username and password are required" };
         }
@@ -34,13 +30,20 @@ export async function loginUser(prevState: any, formData: FormData) {
             return { message: data.error || "Login failed" };
         }
     
-        console.log("The data:", data);
-    
         // TODO: Set auth token and refresh token here
+        (await cookies()).set("authToken",data.accessToken,{
+            httpOnly:true,
+            sameSite:"strict",
+            maxAge:7*24*60*60 // 7 days
+        });
+        (await cookies()).set("refreshToken",data.refreshToken,{
+            httpOnly:true,
+            sameSite:"strict",
+            maxAge:7*24*60*60 // 7 days 
+        });
     } catch (err) {
         console.error("Error:", err);
         return { message: "Server Error" };
     }
-    redirect("/");
-    
+    return {message:"Succeded"};
 }
